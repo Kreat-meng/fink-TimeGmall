@@ -33,20 +33,15 @@ public class DimApp {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         env.setParallelism(1);
-
         // 配置检查点，生产环境必须配置
         env.enableCheckpointing(5000l, CheckpointingMode.EXACTLY_ONCE);
         env.getCheckpointConfig().setCheckpointTimeout(10000l);
         env.setStateBackend(new HashMapStateBackend());
         env.getCheckpointConfig().setCheckpointStorage("hdfs://hadoop102:8020/flinkcdc");
-
         //设置 hdfs 用户名
-
         System.setProperty("HADOOP_USER_NAME", "atguigu");
 
-
         // 2.todo 读取 kafka 主题 “ tapic_db” 数据得到主流
-
         String topic = "topic_db";
 
         String groupId = "dim_app";
@@ -54,7 +49,6 @@ public class DimApp {
         DataStreamSource<String> kafkaDbStream = env.addSource(MyKafkaUtil.getFlinkKafkaConsumer(topic, groupId));
 
         // 2.1 todo 对主流数据进行过滤封装成Json对象
-
         SingleOutputStreamOperator<JSONObject> jsonStream = kafkaDbStream.flatMap(new FlatMapFunction<String, JSONObject>() {
             @Override
             public void flatMap(String value, Collector<JSONObject> out) throws Exception {
@@ -77,7 +71,6 @@ public class DimApp {
             }
         });
         // 3。todo 读取 mysql 中配置表信息转换为 配置流
-
         MySqlSource<String> source = MySqlSource.<String>builder()
                 .hostname("hadoop102")
                 .port(3306)
@@ -93,7 +86,6 @@ public class DimApp {
                 env.fromSource(source, WatermarkStrategy.noWatermarks(), "mysql");
 
         // 4. todo 转换 配置流为广播流
-
         MapStateDescriptor<String, TableProcess> braodstate = new MapStateDescriptor<>("braodstate", String.class, TableProcess.class);
 
         BroadcastStream<String> broadcastStream = mysqlpz.broadcast(braodstate);
@@ -104,11 +96,9 @@ public class DimApp {
 
 
         // 9. todo 主流数据写入 phinx 实现sink方法
-
         habaseStream.addSink(new DimMysinkWithPhenix());
 
         // 10. todo 执行操作
-
         env.execute("dimAPP");
     }
 }

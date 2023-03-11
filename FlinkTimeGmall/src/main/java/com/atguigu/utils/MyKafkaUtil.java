@@ -1,9 +1,11 @@
 package com.atguigu.utils;
 
 
+import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -15,11 +17,13 @@ import java.util.Properties;
  */
 public class MyKafkaUtil {
 
+    private static final String BOOTSTRAP_SERVERS = "hadoop102:9092,hadoop103:9092,hadoop102:9092";
+
     public static FlinkKafkaConsumer<String> getFlinkKafkaConsumer(String topic,String groupId){
 
         Properties props= new Properties();
 
-        props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"hadoop102:9092,hadoop103:9092,hadoop102:9092");
+        props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,BOOTSTRAP_SERVERS);
 
         props.setProperty(ConsumerConfig.GROUP_ID_CONFIG,groupId);
 
@@ -49,5 +53,12 @@ public class MyKafkaUtil {
         }, props);
 
         return flinkKafkaConsumer;
+    }
+
+    public static FlinkKafkaProducer<String> getKafkaProducerFunction(String topic){
+
+        return new FlinkKafkaProducer<String>(
+                BOOTSTRAP_SERVERS,topic,new SimpleStringSchema());
+
     }
 }
