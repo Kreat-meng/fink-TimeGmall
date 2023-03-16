@@ -109,4 +109,18 @@ public class MyKafkaUtil {
                 "  'value.format' = 'avro'\n" +
                 ")";
     }
+
+    public static String getTopicDBDDL(String topic, String groupId){
+
+        return "" +
+                "create table topic_db (\n" +
+                "    `database` STRING,\n" +
+                "    `table` STRING,\n" +
+                "    `type` STRING,\n" +
+                "    `ts` BIGINT,\n" +
+                "    `data` MAP<STRING,STRING>,\n" +
+                "    `old` MAP<STRING,STRING>,\n" +
+                "    `pt` AS PROCTIME()\n" +
+                ")" + getKafkaDDL(topic,groupId);
+    }
 }
