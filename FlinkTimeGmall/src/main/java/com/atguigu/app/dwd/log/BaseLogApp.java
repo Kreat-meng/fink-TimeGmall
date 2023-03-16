@@ -1,4 +1,4 @@
-package com.atguigu.app.dwd;
+package com.atguigu.app.dwd.log;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -27,7 +27,7 @@ import java.math.BigInteger;
  * @author MengX
  * @create 2023/3/8 16:52:32
  */
-public class DwdApp {
+public class BaseLogApp {
 
     public static void main(String[] args) throws Exception {
 
@@ -40,6 +40,8 @@ public class DwdApp {
         env.getCheckpointConfig().setCheckpointTimeout(10000L);
         env.setStateBackend(new HashMapStateBackend());
         env.getCheckpointConfig().setCheckpointStorage("hdfs://hadoop102:8020/flinkcdc/220926");
+
+        System.setProperty("HADOOP_USER_NAME","atguigu");
 
         //获取数据并把数据转化为json对象
         String topic = "topic_log";
@@ -198,15 +200,21 @@ public class DwdApp {
         String action_topic = "dwd_traffic_action_log";
         String error_topic = "dwd_traffic_error_log";
 
+        pageDs.print("page_topic");
+        pageDs.getSideOutput(errorTag).print("errorTag");
+        pageDs.getSideOutput(startTag).print("startTag");
+        pageDs.getSideOutput(dispayTag).print("dispayTag");
+        pageDs.getSideOutput(actionTag).print("actionTag");
+
 
         pageDs.addSink(MyKafkaUtil.getKafkaProducerFunction(page_topic));
         pageDs.getSideOutput(errorTag).addSink(MyKafkaUtil.getKafkaProducerFunction(error_topic));
-        pageDs.getSideOutput(startTag).addSink(MyKafkaUtil.getKafkaProducerFunction(start_topic));;
-        pageDs.getSideOutput(dispayTag).addSink(MyKafkaUtil.getKafkaProducerFunction(display_topic));;
-        pageDs.getSideOutput(actionTag).addSink(MyKafkaUtil.getKafkaProducerFunction(action_topic));;
+        pageDs.getSideOutput(startTag).addSink(MyKafkaUtil.getKafkaProducerFunction(start_topic));
+        pageDs.getSideOutput(dispayTag).addSink(MyKafkaUtil.getKafkaProducerFunction(display_topic));
+        pageDs.getSideOutput(actionTag).addSink(MyKafkaUtil.getKafkaProducerFunction(action_topic));
 
 
         //执行
-        env.execute();
+        env.execute("BaseLogApp");
     }
 }

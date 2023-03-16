@@ -99,6 +99,6 @@ public class DimApp {
         habaseStream.addSink(new DimMysinkWithPhenix());
 
         // 10. todo 执行操作
-        env.execute("dimAPP");
+        env.execute("DimApp");
     }
 }

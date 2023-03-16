@@ -215,7 +215,9 @@ public class DimTableProcessFunction extends BroadcastProcessFunction<JSONObject
                 JSONObject data1 = value.getJSONObject("data");
 
                 //列过滤
-                String sinkColumns = table.getSinkColumns();
+                columnsflat(data1,table);
+
+              /*  String sinkColumns = table.getSinkColumns();
 
                 String[] split1 = sinkColumns.split(",");
 
@@ -231,7 +233,7 @@ public class DimTableProcessFunction extends BroadcastProcessFunction<JSONObject
 
                         iterator.remove();
                     }
-                }
+                }*/
                 data1.put("sinkTable",table.getSinkTable());
 
                 out.collect(data1);
@@ -241,6 +243,28 @@ public class DimTableProcessFunction extends BroadcastProcessFunction<JSONObject
 
         }
 
+
+    }
+
+    public static void columnsflat(JSONObject jsonObject,TableProcess tableProcess) {
+
+        String sinkColumns = tableProcess.getSinkColumns();
+
+        String[] split1 = sinkColumns.split(",");
+
+        List<String> columns = Arrays.asList(split1);
+
+        Iterator<Map.Entry<String, Object>> iterator = jsonObject.entrySet().iterator();
+
+        while (iterator.hasNext()){
+
+            String key = iterator.next().getKey();
+
+            if (!columns.contains(key)){
+
+                iterator.remove();
+            }
+        }
 
     }
 
